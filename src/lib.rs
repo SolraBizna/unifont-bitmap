@@ -56,9 +56,6 @@
 //! println!("Bytes: {:?}", my_bitmap.get_bytes());
 //! ```
 //!
-//! For multi-threaded use, consider the
-//! [`UnifontLocked`](struct.UnifontLocked.html) struct.
-//!
 //! What you do from here is complicated, and outside this crate's pay grade.
 
 use byteorder::{ReadBytesExt, BigEndian};
