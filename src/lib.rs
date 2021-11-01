@@ -77,8 +77,17 @@ pub const NUM_UNICODE_PAGES: u32 = NUM_UNICODE_CODEPOINTS >> 8;
 /// A single 8x16 or 16x16 bitmap, corresponding to a single displayed glyph.
 /// See the module documentation for a cryptic warning about combining
 /// characters, invisible characters, etc.
+#[derive(PartialEq,Eq)]
 pub struct Bitmap<'a> {
     bytes: &'a [u8],
+}
+
+impl<'a> core::fmt::Debug for Bitmap<'a> {
+    fn fmt(&self, fmt: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+	fmt.write_str("unifont bitmap {")?;
+	core::fmt::Debug::fmt(self.bytes, fmt)?;
+	fmt.write_str("}")
+    }
 }
 
 impl<'a> Bitmap<'a> {
@@ -196,36 +205,41 @@ impl Unifont {
 	assert!(page <= MAX_UNICODE_PAGE);
 	let target_page = &mut self.pages[page as usize];
 	if target_page.raw_data.is_none() {
-	    let mut inflater = flate2::Decompress::new(true);
-	    let mut buf = vec![0; target_page.uncompressed_size as usize];
-	    inflater.decompress(&UNIFONT_DATA[target_page.compressed_offset as usize ..], &mut buf[..], flate2::FlushDecompress::Finish).expect("The Unifont bitmap data in this application appears to be corrupted!");
-	    let mut running_offset = 512u16;
-	    for n in 0 .. 256 {
-		let i = (n * 2) as usize;
-		let in_offset = u16::from_be_bytes(buf[i..i+2].try_into().unwrap());
-		let out_offset;
-		match in_offset {
-		    0x0000 => {
-			// narrow char,
-			out_offset = running_offset;
-			running_offset += 16;
-		    },
-		    0x0001 => {
-			// wide char
-			out_offset = running_offset | 1;
-			running_offset += 32;
-		    },
-		    0x0101 => {
-			// invalid char
-			out_offset = 0;
-		    },
-		    _ => {
-			panic!("The Unifont bitmap data in this application appears to be corrupted!");
-		    },
-		}
-		buf[i..i+2].copy_from_slice(&out_offset.to_ne_bytes());
+	    if target_page.uncompressed_size == 0 {
+		target_page.raw_data = Some(vec![0u8; 512]);
 	    }
-	    target_page.raw_data = Some(buf)
+	    else {
+		let mut inflater = flate2::Decompress::new(true);
+		let mut buf = vec![0; target_page.uncompressed_size as usize];
+		inflater.decompress(&UNIFONT_DATA[target_page.compressed_offset as usize ..], &mut buf[..], flate2::FlushDecompress::Finish).expect("The Unifont bitmap data in this application appears to be corrupted!");
+		let mut running_offset = 512u16;
+		for n in 0 .. 256 {
+		    let i = (n * 2) as usize;
+		    let in_offset = u16::from_be_bytes(buf[i..i+2].try_into().unwrap());
+		    let out_offset;
+		    match in_offset {
+			0x0000 => {
+			    // narrow char,
+			    out_offset = running_offset;
+			    running_offset += 16;
+			},
+			0x0001 => {
+			    // wide char
+			    out_offset = running_offset | 1;
+			    running_offset += 32;
+			},
+			0x0101 => {
+			    // invalid char
+			    out_offset = 0;
+			},
+			_ => {
+			    panic!("The Unifont bitmap data in this application appears to be corrupted!");
+			},
+		    }
+		    buf[i..i+2].copy_from_slice(&out_offset.to_ne_bytes());
+		}
+		target_page.raw_data = Some(buf)
+	    }
 	}
     }
     /// Creates a new instance of this class, with no glyphs cached yet.
@@ -259,9 +273,30 @@ impl Unifont {
 	for el in &mut self.pages[..] {
 	    let uncompressed_size = i.read_u16::<BigEndian>().unwrap();
 	    let compressed_size = i.read_u16::<BigEndian>().unwrap();
-	    el.compressed_offset = running_offset;
 	    el.uncompressed_size = uncompressed_size as u32;
-	    running_offset += compressed_size as u32;
+	    if el.uncompressed_size > 0 {
+		el.compressed_offset = running_offset;
+		running_offset += compressed_size as u32;
+	    }
+	    else {
+		el.compressed_offset = 0;
+	    }
 	}
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn bogus_page() {
+	let mut unifont = Unifont::open();
+	let fffd = unifont.load_bitmap(0xFFFD);
+	drop(fffd);
+	let bad = unifont.load_bitmap(0x104560);
+	drop(bad);
+	let fffd = unifont.get_bitmap(0xFFFD);
+	let bad = unifont.get_bitmap(0x104560);
+	assert_eq!(fffd, bad);
     }
 }
