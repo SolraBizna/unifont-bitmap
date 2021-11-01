@@ -7,10 +7,17 @@ use std::{
 
 use regex::Regex;
 
+// These constants are also defined in our crate, but we can't use our crate
+// for them, because our crate needs us to be independently able to compile the
+// font from .hex files in the first place.
 /// The largest codepoint value that is, or ever will be, legal in Unicode.
-const MAX_UNICODE_CODEPOINT: u32 = 0x10FFFF;
-const MAX_UNICODE_PAGE: u32 = MAX_UNICODE_CODEPOINT >> 8;
-const NUM_UNICODE_PAGES: u32 = MAX_UNICODE_PAGE + 1;
+pub const MAX_UNICODE_CODEPOINT: u32 = 0x10FFFF;
+/// The number of legal codepoint values that exist in Unicode.
+pub const NUM_UNICODE_CODEPOINTS: u32 = MAX_UNICODE_CODEPOINT + 1;
+/// The largest number of a 256-codepoint "page" that exists in Unicode.
+pub const MAX_UNICODE_PAGE: u32 = NUM_UNICODE_PAGES-1;
+/// The number of 256-codepoint "pages" that exist in Unicode.
+pub const NUM_UNICODE_PAGES: u32 = NUM_UNICODE_CODEPOINTS >> 8;
 
 enum Bitmap {
     Narrow([u8; 16]),
@@ -118,6 +125,7 @@ fn main() -> std::io::Result<()> {
     let compressed_page_table = e.finish().unwrap();
     let mut output = std::fs::File::create(&args[1]).unwrap();
     output.write_all(&(compressed_page_table.len() as u32).to_be_bytes()).unwrap();
+    output.write_all(&compressed_page_table).unwrap();
     for (_, bytes) in encoded_pages.iter() {
 	output.write_all(bytes).unwrap();
     }
