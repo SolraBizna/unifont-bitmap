@@ -1,10 +1,12 @@
 [package]
 name = "unifont-bitmap"
-version = "0.1.0"
+version = "1.0.0+unifont-13.0.06"
 authors = ["Solra Bizna <solra@bizna.name>"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Get bitmap data for GNU Unifont. Embedded in compressed form, light on memory."
+readme = "README.md"
+homepage = "https://github.com/SolraBizna/unifont-bitmap"
+keywords = ["unifont"]
 
 [dependencies]
 once_cell = "1.8"

@@ -5,6 +5,12 @@
 //! for the raw binary data represented in the `.hex` files that comprise
 //! GNU Unifont's "source code".
 //!
+//! [1]: http://unifoundry.com/unifont/index.html
+//! [2]: https://crates.io/crates/sdl2-unifont
+//! [3]: https://crates.io/crates/unifont
+//!
+//! # Background
+//!
 //! GNU Unifont is a bitmap font covering every character in Unicode. Narrow
 //! characters are 8x16 pixels, and wide characters are 16x16 pixels. GNU
 //! Unifont can be used to render any text that can be represented entirely
@@ -28,9 +34,6 @@
 //! and simple purpose of retrieving the individual GNU Unifont glyph that
 //! represents a given Unicode code point.
 //!
-//! [1]: http://unifoundry.com/unifont/index.html
-//! [2]: https://crates.io/crates/sdl2-unifont
-//! [3]: https://crates.io/crates/unifont
 //! [4]: https://unicode.org/reports/tr9/
 //! [5]: https://unicode.org/reports/tr14/
 //!
@@ -40,8 +43,10 @@
 //! overhead. This is a small price to pay for a font that covers every Unicode
 //! character.
 //!
+//! # Usage
+//!
 //! Single-threaded usage is simple, via the [`Unifont`](struct.Unifont.html)
-//! struct::
+//! struct:
 //!
 //! ```rust
 //! use unifont_bitmap::Unifont;
@@ -57,6 +62,42 @@
 //! ```
 //!
 //! What you do from here is complicated, and outside this crate's pay grade.
+//!
+//! # Legalese
+//!
+//! The `unifont-bitmap` crate is copyright 2021, Solra Bizna, and licensed
+//! under either of:
+//!
+//!  * Apache License, Version 2.0
+//!    ([LICENSE-APACHE](LICENSE-APACHE) or
+//!    <http://www.apache.org/licenses/LICENSE-2.0>)
+//!  * MIT license
+//!    ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+//!
+//! at your option.
+//!
+//! As for GNU Unifont:
+//!
+//! > Copyright (C) 1998-2021 Roman Czyborra, Paul Hardy, Qianqian Fang,
+//! > Andrew Miller, Johnnie Weaver, David Corbett, Nils Moskopp, Rebecca
+//! > Bettencourt, et al. License: SIL Open Font License version 1.1 and
+//! > GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>
+//! > with the GNU Font Embedding Exception.
+//!
+//! I believe that this license is compatible with `unifont-bitmap`'s use of
+//! the font. If the font ends up statically linked into a non-GPL-compatible
+//! application, e.g. for its own use in UI elements, my interpretation of the
+//! license is that this is equivalent to embedding it into a document; thus
+//! explicitly permitted by the Font Embedding Exception. If one of the
+//! copyright holders and/or the Free Software Foundation disagrees with this
+//! interpretation, I'd be open to discuss the issue.
+//!
+//! ## Contribution
+//!
+//! Unless you explicitly state otherwise, any contribution intentionally
+//! submitted for inclusion in the `unifont-bitmap` crate by you, as defined
+//! in the Apache-2.0 license, shall be dual licensed as above, without any
+//! additional terms or conditions.
 
 use byteorder::{ReadBytesExt, BigEndian};
 
