@@ -28,7 +28,7 @@ fn main() -> std::io::Result<()> {
     let args: Vec<OsString> = std::env::args_os().collect();
     if args.len() != 2 {
 	eprintln!("Usage: cat ~/unifont/font/precompiled/unifont{{,_upper}}-\
-		   13.0.06.hex | {} output.dat", args[0].to_string_lossy());
+		   14.0.01.hex | {} output.dat", args[0].to_string_lossy());
 	std::process::exit(1);
     }
     let mut active_pages: HashSet<u32> = HashSet::with_capacity(NUM_UNICODE_PAGES as usize);
