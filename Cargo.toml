@@ -1,6 +1,6 @@
 [package]
 name = "unifont-bitmap"
-version = "1.0.0+unifont-13.0.06"
+version = "1.0.0+unifont-14.0.01"
 authors = ["Solra Bizna <solra@bizna.name>"]
 edition = "2021"
 description = "Get bitmap data for GNU Unifont. Embedded in compressed form, light on memory."
